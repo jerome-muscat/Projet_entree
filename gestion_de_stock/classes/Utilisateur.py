@@ -1,16 +1,13 @@
 import mysql.connector
-########################Message################################
-#----------------tous se qui a était écrit--------------------#
-################################################################
+
+# Class Utilisateur
 class Utilisateur:
     def __init__(self, hote, utilisateur, motdepasse, bdd):
         self.hote = hote
         self.utilisateur = utilisateur
         self.motdepasse = motdepasse
         self.bdd = bdd
-###################connection/closing###########################
-#------------------connection/closing--------------------------#
-################################################################
+
     def connect(self):
         self.bd = mysql.connector.connect(
             host = self.hote,
@@ -23,21 +20,17 @@ class Utilisateur:
     def close(self):
         self.cursor.close()
         self.bd.close()
-###################CRUD###########################
-#-----------------create-------------------------#
-##################################################
-    def ajout(self, nom, prenom, email, motdepasse, pseudo_discord, age):
+
+    def ajout(self, nom, prenom, email, motdepasse):
         self.connect()
-        ajout_req = f'insert into utilisateur (nom, prenom, email, mdp, pseudo, age, id_privilege) \
-            \nvalues ("{nom}", "{prenom}", "{email}", "{motdepasse}", "{pseudo_discord}", {age}, 3)'
+        ajout_req = f'insert into utilisateur (nom, prenom, email, mot_de_passe) \
+            \nvalues ("{nom}", "{prenom}", "{email}", "{motdepasse}")'
        
         self.cursor.execute(ajout_req)
 
         self.bd.commit()
         self.close()
-###################CRUD###########################
-#------------------read--------------------------#
-##################################################
+
     def lecture(self):
         self.connect()
         lecture_req = f"select * from utilisateur"
@@ -56,16 +49,16 @@ class Utilisateur:
 
     def lectureCondition_mdp(self, condition):
         self.connect()
-        lecture_cond_req = f'select mdp from utilisateur where {condition}"'
+        lecture_cond_req = f'select mot_de_passe from utilisateur where {condition}'
         self.cursor.execute(lecture_cond_req)
         resultat = self.cursor.fetchone()[0]
         print(resultat)
         self.close()
         return resultat
 
-    def maj(self, champ, nouvelle_valeur, condition):
+    def maj(self, nouvelle_valeur, condition):
         self.connect()
-        maj_req = f"update utilisateur set {nouvelle_valeur} where {condition}"
+        maj_req = f'update utilisateur set mot_de_passe = "{nouvelle_valeur}" where email = "{condition}"'
         self.cursor.execute(maj_req)
         self.bd.commit()
         self.close()
@@ -79,7 +72,7 @@ class Utilisateur:
     
     def verif_email(self, email):
         self.connect()
-        req = f'select * from utilisateur where "email" = "{email}"'
+        req = f'select * from utilisateur where email = "{email}"'
         self.cursor.execute(req)
         result = self.cursor.fetchone()
         if result != None:

@@ -4,13 +4,7 @@ from classes.Categorie import *
 from classes.Produit import *
 import tkinter.messagebox as messagebox
 
-root = tk.Tk()
-root.geometry("1000x700")
-root.title("Gestion de stock")
-categorie = Categorie('localhost', 'root', 'Jerome', 'boutique')
-produit = Produit('localhost', 'root', 'Jerome', 'boutique')
-
-resultat = produit.lecture()
+# Vérif fonction ajour à faire
 
 def affich_nom(resultat, treeview, produit):
     for row in resultat:
@@ -23,7 +17,7 @@ def affich_nom(resultat, treeview, produit):
                 nom_categorie += lettre
         treeview.insert('', 'end', text=row[0], values=(row[1], row[2], nom_categorie, row[3], row[4], "Modifier", "Effacer"))
 
-def clique_colonne_produit(event):
+def clique_colonne_produit(event, treeview, root, produit):
     region = treeview.identify_region(event.x, event.y)
     if region == "cell":
         item_id = treeview.identify_row(event.y)
@@ -31,13 +25,13 @@ def clique_colonne_produit(event):
 
         if column_id == "#6":
             # Clic sur la colonne "modifier"
-            modifier_produit(item_id)
+            modifier_produit(item_id, treeview, root, produit)
             
         elif column_id == "#7":
             # Clic sur la colonne "effacer"
-            effacer_produit(item_id)
+            effacer_produit(item_id, treeview, produit)
 
-def validation(item_id, name_entry, description_entry, price_entry, quantity_entry, modif_window):
+def validation(item_id, name_entry, description_entry, price_entry, quantity_entry, modif_window, treeview, produit):
     reponse = messagebox.askyesno("Modifier", "Voulez-vous vraiment modifier ce produit ?")
     if reponse:        
         id_produit = treeview.item(item_id, "text")
@@ -67,7 +61,7 @@ def validation(item_id, name_entry, description_entry, price_entry, quantity_ent
             treeview.item(item_id, values=values)
             modif_window.destroy()
 
-def ajout_valid(name_entry, description_entry, categorie_entry, price_entry, quantity_entry, modif_window):
+def ajout_valid(name_entry, description_entry, categorie_entry, price_entry, quantity_entry, modif_window, categorie, produit, treeview):
     reponse = messagebox.askyesno("Ajout", "Voulez-vous vraiment ajouter ce produit ?")
     if reponse:
         values = [
@@ -96,7 +90,7 @@ def ajout_valid(name_entry, description_entry, categorie_entry, price_entry, qua
             treeview.insert("", "end", values=values)
             modif_window.destroy()
 
-def modifier_produit(item_id):
+def modifier_produit(item_id, treeview, root, produit):
     modif_window = tk.Toplevel(root)
     modif_window.title("Modifier la ligne")
     modif_window.geometry("800x400")
@@ -129,10 +123,10 @@ def modifier_produit(item_id):
     quantity_label.pack()
     quantity_entry.pack()
     
-    valider_button = tk.Button(modif_window, text="Valider", command= lambda: validation(item_id, name_entry, description_entry, price_entry, quantity_entry, modif_window))
+    valider_button = tk.Button(modif_window, text="Valider", command= lambda: validation(item_id, name_entry, description_entry, price_entry, quantity_entry, modif_window, treeview, produit))
     valider_button.pack()
 
-def effacer_produit(item_id):
+def effacer_produit(item_id, treeview, produit):
     reponse = messagebox.askyesno("Effacer", "Voulez-vous vraiment effacer cet enregistrement ?")
     if reponse:
         id_produit = treeview.item(item_id, "text")
@@ -149,7 +143,7 @@ def effacer_produit(item_id):
         if verif:
             treeview.delete(item_id)
 
-def ajout():
+def ajout(root, categorie, produit, treeview):
     modif_window = tk.Toplevel(root)
     modif_window.title("Modifier la ligne")
     modif_window.geometry("800x400")
@@ -181,10 +175,10 @@ def ajout():
     quantity_label.pack()
     quantity_entry.pack()
         
-    valider_button = tk.Button(modif_window, text="Valider", command=lambda: ajout_valid(name_entry, description_entry, categorie_entry, price_entry, quantity_entry, modif_window))
+    valider_button = tk.Button(modif_window, text="Valider", command=lambda: ajout_valid(name_entry, description_entry, categorie_entry, price_entry, quantity_entry, modif_window, categorie, produit, treeview))
     valider_button.pack()  
 
-def validation_modif_categorie(item_id, name_entry, modif_window):
+def validation_modif_categorie(item_id, name_entry, modif_window, categorie):
     reponse = messagebox.askyesno("Modifier", "Voulez-vous vraiment modifier ce produit ?")
     if reponse:
         values = [
@@ -208,7 +202,7 @@ def validation_modif_categorie(item_id, name_entry, modif_window):
             modif_window.destroy()
             treeview_categorie.item(item_id, values=values)   
 
-def modifier_categorie(item_id):
+def modifier_categorie(item_id, root, categorie):
     modif_window = tk.Toplevel(root)
     modif_window.title("Modifier la ligne")
     modif_window.geometry("800x400")
@@ -222,10 +216,10 @@ def modifier_categorie(item_id):
     name_label.pack()
     name_entry.pack()
         
-    valider_button = tk.Button(modif_window, text="Valider", command=lambda: validation_modif_categorie(item_id, name_entry, modif_window))
+    valider_button = tk.Button(modif_window, text="Valider", command=lambda: validation_modif_categorie(item_id, name_entry, modif_window, categorie))
     valider_button.pack()
 
-def effacer_categorie(item_id):
+def effacer_categorie(item_id, produit, categorie):
     reponse = messagebox.askyesno("Effacer", "Voulez-vous vraiment effacer cet enregistrement ?")
     if reponse:
         
@@ -240,7 +234,7 @@ def effacer_categorie(item_id):
         except:
             messagebox.showinfo("Etat suppression", "Suppression echouée !")
 
-def clique_colonne_categorie(event):
+def clique_colonne_categorie(event, root, categorie, produit):
     region = treeview_categorie.identify_region(event.x, event.y)
     if region == "cell":
         item_id = treeview_categorie.identify_row(event.y)
@@ -248,13 +242,13 @@ def clique_colonne_categorie(event):
 
         if column_id == "#2":
             # Clic sur la colonne "modifier"
-            modifier_categorie(item_id)
+            modifier_categorie(item_id, root, categorie)
 
         elif column_id == "#3":
             # Clic sur la colonne "effacer"
-            effacer_categorie(item_id)
+            effacer_categorie(item_id, produit, categorie)
 
-def validation_ajout_categorie(treeview_category, name_entry, modif_window):
+def validation_ajout_categorie(treeview_category, name_entry, modif_window, categorie):
     reponse = messagebox.askyesno("Ajouter", "Voulez-vous vraiment ajouter ce produit ?")
     if reponse:
         values = [
@@ -265,7 +259,7 @@ def validation_ajout_categorie(treeview_category, name_entry, modif_window):
         verif = False
 
         try:
-            categorie.ajout(f"{values[0]}")
+            categorie.ajout(f"{values[0]}", )
             messagebox.showinfo("Etat ajout", "Ajout effectuée avec succès !")
             verif = True
 
@@ -276,7 +270,7 @@ def validation_ajout_categorie(treeview_category, name_entry, modif_window):
             modif_window.destroy()
             treeview_category.insert('', 'end', values=values)
             
-def ajout_categorie(categorie):
+def ajout_categorie(categorie, root, produit):
     global treeview_categorie
     modif_window = tk.Toplevel(root)
     modif_window.title("Modifier la ligne")
@@ -294,12 +288,12 @@ def ajout_categorie(categorie):
     treeview_categorie.column('modifier', width=60)
     treeview_categorie.heading('effacer', text='Effacer')
     treeview_categorie.column('effacer', width=60)
-    treeview_categorie.bind("<Button-1>", clique_colonne_categorie)
+    treeview_categorie.bind("<Button-1>", clique_colonne_categorie(root=root, categorie=categorie, produit=produit))
 
     nom_label = tk.Label(modif_window, text="Entrez le nom de la catégorie:")
     nom_entry = tk.Entry(modif_window, width=100)
 
-    ajout_button = tk.Button(modif_window, text="Valider", command=lambda: validation_ajout_categorie(treeview_categorie, nom_entry, modif_window))
+    ajout_button = tk.Button(modif_window, text="Valider", command=lambda: validation_ajout_categorie(treeview_categorie, nom_entry, modif_window, categorie))
 
     nom_label.pack()
     nom_entry.pack()
@@ -312,36 +306,48 @@ def ajout_categorie(categorie):
                 nom_categorie += lettre
         treeview_categorie.insert('', 'end', text=row[0], values=(nom_categorie, "Modifier", "Effacer"))
 
-frame = tk.Frame(root)
-frame.pack(pady=10)
+def fenetre_gestion_stock():
+    root = tk.Tk()
+    root.geometry("1000x700")
+    root.title("Gestion de stock")
+    categorie = Categorie('localhost', 'root', 'Jerome', 'boutique')
+    produit = Produit('localhost', 'root', 'Jerome', 'boutique')
 
-treeview = ttk.Treeview(frame, height=len(resultat))
-treeview.pack(side=tk.LEFT)
-treeview['columns'] = ('name', 'description', 'categorie', 'price', 'quantity', 'modifier', 'effacer')
-treeview.heading('#0', text='ID')
-treeview.column('#0', width=60)
-treeview.heading('name', text='Name')
-treeview.column('name', width=200)
-treeview.heading('description', text='Description')
-treeview.column('description', width=300)
-treeview.heading('categorie', text='Categorie')
-treeview.column('categorie', width=90)
-treeview.heading('price', text='Price')
-treeview.column('price', width=60, anchor=tk.CENTER)
-treeview.heading('quantity', text='Quantity')
-treeview.column('quantity', width=60)
-treeview.heading('modifier', text='Modifier')
-treeview.column('modifier', width=60)
-treeview.heading('effacer', text='Effacer')
-treeview.column('effacer', width=60)
-treeview.bind("<Button-1>", clique_colonne_produit)
+    resultat = produit.lecture()
 
-affich_nom(resultat, treeview, categorie)
+    frame = tk.Frame(root)
 
-ajout_button = tk.Button(root, text="Ajouter un produit", command=lambda: ajout())
-ajout_button.pack()
+    frame.pack(pady=10)
 
-ajout_button = tk.Button(root, text="Ajouter/supprimer une catégorie", command=lambda: ajout_categorie(categorie))
-ajout_button.pack()
+    treeview = ttk.Treeview(frame, height=len(resultat))
+    treeview.pack(side=tk.LEFT)
+    treeview['columns'] = ('name', 'description', 'categorie', 'price', 'quantity', 'modifier', 'effacer')
+    treeview.heading('#0', text='ID')
+    treeview.column('#0', width=60)
+    treeview.heading('name', text='Name')
+    treeview.column('name', width=200)
+    treeview.heading('description', text='Description')
+    treeview.column('description', width=300)
+    treeview.heading('categorie', text='Categorie')
+    treeview.column('categorie', width=90)
+    treeview.heading('price', text='Price')
+    treeview.column('price', width=60, anchor=tk.CENTER)
+    treeview.heading('quantity', text='Quantity')
+    treeview.column('quantity', width=60)
+    treeview.heading('modifier', text='Modifier')
+    treeview.column('modifier', width=60)
+    treeview.heading('effacer', text='Effacer')
+    treeview.column('effacer', width=60)
+    treeview.bind("<Button-1>", clique_colonne_produit(treeview=treeview, root=root, produit=produit))
 
-root.mainloop()
+    affich_nom(resultat, treeview, categorie)
+
+    ajout_button = tk.Button(root, text="Ajouter un produit", command=lambda: ajout())
+    ajout_button.pack()
+
+    ajout_button = tk.Button(root, text="Ajouter/supprimer une catégorie", command=lambda: ajout_categorie(categorie, root, produit))
+    ajout_button.pack()
+
+    root.mainloop()
+
+fenetre_gestion_stock()

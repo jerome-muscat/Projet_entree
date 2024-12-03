@@ -1,5 +1,6 @@
 import mysql.connector
 
+# Class Produit
 class Produit:
     def __init__(self, hote, utilisateur, mdp, bdd):
         self.hote = hote
