@@ -16,7 +16,7 @@ root.title("Connexion")
 fenetre = CTkFrame(root)
 fenetre.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-# Appel des classes
+# Appel des classes/ Créations des objet
 utilisateur = Utilisateur('localhost', 'root', 'Jerome', 'boutique')
 mot_de_passe = Mot_de_passe()
 
